@@ -86,7 +86,25 @@ return (
       <h2 style={styles.sectionTitle}>Program</h2>
 
       <div style={styles.grid}>
-        {renderField('Category', 'category')}
+        <div style={styles.field}>
+          <label style={styles.label}>Category</label>
+
+          {editMode ? (
+            <select
+              name="category"
+              value={form.category || ''}
+              onChange={handleChange}
+              style={styles.input}
+            >
+              <option value="">Select Category</option>
+              <option value="6-week">6-Week Program</option>
+              <option value="1-on-1">1-on-1 Coaching</option>
+            </select>
+          ) : (
+            <p style={styles.value}>{form.category || '-'}</p>
+          )}
+        </div>
+        
         {renderField('Calorie Goal', 'calorie_goal')}
         {renderField('Start Date', 'program_start_date')}
       </div>
