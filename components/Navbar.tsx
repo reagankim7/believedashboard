@@ -2,60 +2,71 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useRouter } from 'next/navigation'
+import { supabase } from '@/lib/supabaseClient'
 
 export default function Navbar() {
-  const pathname = usePathname()
+    const pathname = usePathname()
 
-  return (
-    <div style={styles.navbar}>
-      
-        {/* LEFT: BRAND */}
-        <div style={styles.left}>
-        <Link href="/dashboard" style={styles.logo}>
-            Believe Fitness
-        </Link>
+    const router = useRouter()
+
+    async function handleLogout() {
+    await supabase.auth.signOut()
+    router.push('/login')
+    }
+
+    return (
+        <div style={styles.navbar}>
+        
+            {/* LEFT: BRAND */}
+            <div style={styles.left}>
+            <Link href="/dashboard" style={styles.logo}>
+                Believe Fitness
+            </Link>
+            </div>
+
+            {/* CENTER: NAV LINKS */}
+            <div style={styles.center}>
+            <Link
+                href="/dashboard"
+                style={{
+                ...styles.link,
+                ...(pathname === '/dashboard' ? styles.active : {}),
+                }}
+            >
+                Home
+            </Link>
+
+            <Link
+                href="/dashboard/clients"
+                style={{
+                ...styles.link,
+                ...(pathname.startsWith('/dashboard/clients') ? styles.active : {}),
+                }}
+            >
+                Clients
+            </Link>
+
+            <Link
+                href="/dashboard/add"
+                style={{
+                ...styles.link,
+                ...(pathname === '/dashboard/add' ? styles.active : {}),
+                }}
+            >
+                Add Client
+            </Link>
+            </div>
+
+            {/* RIGHT: (future user/logout) */}
+            <div style={styles.right}>
+                <button style={styles.logoutBtn} onClick={handleLogout}>
+                    Logout
+                </button>
+            </div>
+
         </div>
-
-        {/* CENTER: NAV LINKS */}
-        <div style={styles.center}>
-        <Link
-            href="/dashboard"
-            style={{
-            ...styles.link,
-            ...(pathname === '/dashboard' ? styles.active : {}),
-            }}
-        >
-            Home
-        </Link>
-
-        <Link
-            href="/dashboard/clients"
-            style={{
-            ...styles.link,
-            ...(pathname.startsWith('/dashboard/clients') ? styles.active : {}),
-            }}
-        >
-            Clients
-        </Link>
-
-        <Link
-            href="/dashboard/add"
-            style={{
-            ...styles.link,
-            ...(pathname === '/dashboard/add' ? styles.active : {}),
-            }}
-        >
-            Add Client
-        </Link>
-        </div>
-
-        {/* RIGHT: (future user/logout) */}
-        <div style={styles.right}>
-        {/* placeholder */}
-        </div>
-
-    </div>
-  )
+    )
 }
 
 const styles: any = {
@@ -104,4 +115,15 @@ const styles: any = {
     },
 
     right: {},
+
+    logoutBtn: {
+        backgroundColor: '#d4a017',
+        color: '#000',
+        border: 'none',
+        padding: '8px 14px',
+        borderRadius: 8,
+        fontWeight: 600,
+        cursor: 'pointer',
+        transition: 'all 0.2s ease',
+    },
 }

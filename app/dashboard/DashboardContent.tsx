@@ -4,23 +4,17 @@ import { createSupabaseServerClient } from '@/lib/supabaseServer'
 export default async function DashboardPage() {
   const supabase = await createSupabaseServerClient()
 
+  // 1. Get logged-in user
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
+  // 2. Get trainer
   const { data: trainer } = await supabase
-  .from('trainers')
-  .select('*')
-  .eq('id', '15431d30-65d0-4402-b425-0f60588bafb4')
-  .single()
-  // // 1. Get logged-in user
-  // const {
-  //   data: { user },
-  // } = await supabase.auth.getUser()
-
-  // // 2. Get trainer
-  // const { data: trainer } = await supabase
-  //   .from('trainers')
-  //   .select('*')
-  //   .eq('auth_user_id', user?.id)
-  //   .single()
+    .from('trainers')
+    .select('*')
+    .eq('auth_user_id', user?.id)
+    .single()
 
   // 3. Get clients for this trainer
   const { data: users } = await supabase
