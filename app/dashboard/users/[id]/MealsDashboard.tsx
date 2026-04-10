@@ -10,23 +10,29 @@ export default function MealsDashboard({
   meals: any[]
 }) {
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
+  
   const now = new Date()
+  now.setDate(now.getDate() - 1) // shift to yesterday
+  now.setDate(now.getDate() - 1) // 👈 shift to yesterday
+
   const [currentDate, setCurrentDate] = useState(new Date())
   const year = currentDate.getFullYear()
   const month = currentDate.getMonth()
 
   //to show last 7 days range
   function getLast7DaysRange() {
-    const now = new Date()
-    const past = new Date()
-    past.setDate(now.getDate() - 6)
+    const end = new Date()
+    end.setDate(end.getDate() - 1)
+
+    const start = new Date(end)
+    start.setDate(end.getDate() - 6)
 
     const options: Intl.DateTimeFormatOptions = {
       month: 'short',
       day: 'numeric',
     }
 
-    return `${past.toLocaleDateString(undefined, options)} - ${now.toLocaleDateString(undefined, options)}`
+    return `${start.toLocaleDateString(undefined, options)} - ${end.toLocaleDateString(undefined, options)}`
   }
 
   function goPrevMonth() {
@@ -58,8 +64,20 @@ export default function MealsDashboard({
     return now.getTime() - date.getTime() <= 7 * 24 * 60 * 60 * 1000
   })
 
-  const totals = last7DaysMeals.reduce(
-    (sum: any, m: any) => ({
+// 🔥 GROUP LAST 7 DAYS BY DATE
+const mealsByDateLast7: Record<string, any[]> = {}
+
+last7DaysMeals.forEach((meal: any) => {
+  const date = new Date(meal.created_at).toDateString()
+
+  if (!mealsByDateLast7[date]) mealsByDateLast7[date] = []
+  mealsByDateLast7[date].push(meal)
+})
+
+// 🔥 CALCULATE DAILY TOTALS
+const dailyTotals = Object.values(mealsByDateLast7).map((meals: any[]) => {
+  return meals.reduce(
+    (sum, m) => ({
       calories: sum.calories + (m.calories || 0),
       protein: sum.protein + (m.protein || 0),
       carbs: sum.carbs + (m.carbs || 0),
@@ -67,15 +85,23 @@ export default function MealsDashboard({
     }),
     { calories: 0, protein: 0, carbs: 0, fat: 0 }
   )
+})
 
-  const count = last7DaysMeals.length || 1
-
-  const averages = {
-    calories: Math.round(totals.calories / count),
-    protein: Math.round(totals.protein / count),
-    carbs: Math.round(totals.carbs / count),
-    fat: Math.round(totals.fat / count),  
-  }
+// 🔥 AVERAGE PER DAY (NOT PER MEAL)
+const averages = {
+  calories: Math.round(
+    dailyTotals.reduce((sum, d) => sum + d.calories, 0) / 7
+  ),
+  protein: Math.round(
+    dailyTotals.reduce((sum, d) => sum + d.protein, 0) / 7
+  ),
+  carbs: Math.round(
+    dailyTotals.reduce((sum, d) => sum + d.carbs, 0) / 7
+  ),
+  fat: Math.round(
+    dailyTotals.reduce((sum, d) => sum + d.fat, 0) / 7
+  ),
+}
 
   function getStatus(value: number, target: number, range: number) {
     if (value < target - range) return 'under'
