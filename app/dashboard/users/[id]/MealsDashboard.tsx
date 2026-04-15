@@ -418,47 +418,50 @@ const averages = {
         <div style={styles.section}>
           <h2 style={styles.sectionTitle}>{selectedDate}</h2>
 
-          {mealsByDate[selectedDate].map((meal: any) => {
-            const score = getMealScore(meal, user)
+          {(mealsByDate[selectedDate] || []).length > 0 ? (
+            (mealsByDate[selectedDate] || []).map((meal: any) => {
+              const score = getMealScore(meal, user)
 
-            return (
-              <div key={meal.id} style={styles.mealCardNew}>
+              return (
+                <div key={meal.id} style={styles.mealCardNew}>
 
-                {/* IMAGE */}
-                {meal.image_url && (
-                  <img src={meal.image_url} style={styles.mealImageNew} />
-                )}
+                  {meal.image_url && (
+                    <img src={meal.image_url} style={styles.mealImageNew} />
+                  )}
 
-                {/* CONTENT */}
-                <div style={{ flex: 1 }}>
-                  <div style={styles.mealTopRow}>
-                    <p style={styles.mealTitle}>{meal.food_title}</p>
+                  <div style={{ flex: 1 }}>
+                    <div style={styles.mealTopRow}>
+                      <p style={styles.mealTitle}>{meal.food_title}</p>
 
-                    {/* SCORE */}
-                    <span style={getScoreStyle(score)}>
-                      {score}/10
-                    </span>
+                      <span style={getScoreStyle(score)}>
+                        {score}/10
+                      </span>
+                    </div>
+
+                    <p style={styles.mealDesc}>
+                      {meal.food_description}
+                    </p>
+
+                    <p style={styles.mealTime}>
+                      {new Date(meal.created_at).toLocaleTimeString()}
+                    </p>
+
+                    <div style={styles.macroRow}>
+                      <span>{meal.calories} kcal</span>
+                      <span>{meal.protein}g protein</span>
+                      <span>{meal.carbs}g carbs</span>
+                      <span>{meal.fat}g fat</span>
+                    </div>
                   </div>
 
-                  <p style={styles.mealDesc}>
-                    {meal.food_description}
-                  </p>
-
-                  <p style={styles.mealTime}>
-                    {new Date(meal.created_at).toLocaleTimeString()}
-                  </p>
-
-                  <div style={styles.macroRow}>
-                    <span>{meal.calories} kcal</span>
-                    <span>{meal.protein}g protein</span>
-                    <span>{meal.carbs}g carbs</span>
-                    <span>{meal.fat}g fat</span>
-                  </div>
                 </div>
-
-              </div>
-            )
-          })}
+              )
+            })
+          ) : (
+            <div style={styles.emptyState}>
+              No meals logged for this day
+            </div>
+          )}
         </div>
       )}
 
